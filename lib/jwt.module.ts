@@ -3,7 +3,7 @@ import {
   JwtModuleAsyncOptions,
   JwtModuleOptions,
   JwtOptionsFactory
-} from './interfaces/jwt-module-options.interface';
+} from './interfaces';
 import { JWT_MODULE_OPTIONS } from './jwt.constants';
 import { createJwtProvider } from './jwt.providers';
 import { JwtService } from './jwt.service';

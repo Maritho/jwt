@@ -5,18 +5,31 @@ import {
   JwtSecretRequestType,
   JwtVerifyOptions,
   JwtSignOptions
-} from './interfaces/jwt-module-options.interface';
+} from './interfaces';
+import { RedisClient } from 'redis';
 import { JWT_MODULE_OPTIONS } from './jwt.constants';
+import { RedisService } from './redis.service';
+import { generateId } from './utils';
+import type { VerifyErrors } from 'jsonwebtoken';
+import TokenInvalidError from './error/TokenInvalidError';
+import TokenDestroyedError from './error/TokenDestroyedError';
 
 @Injectable()
 export class JwtService {
   private readonly logger = new Logger('JwtService');
 
   constructor(
-    @Inject(JWT_MODULE_OPTIONS) private readonly options: JwtModuleOptions
-  ) {}
+    @Inject(JWT_MODULE_OPTIONS) private readonly options: JwtModuleOptions,
+    private readonly redis: RedisService,
+    private readonly client: RedisClient
+  ) {
+    this.redis = new RedisService(client);
+  }
 
-  sign(payload: string | Buffer | object, options?: JwtSignOptions): string {
+  sign<T extends string[] & { jti?: string }>(
+    payload: T,
+    options?: JwtSignOptions
+  ): string {
     const signOptions = this.mergeJwtOptions(
       { ...options },
       'signOptions'
@@ -28,11 +41,25 @@ export class JwtService {
       JwtSecretRequestType.SIGN
     );
 
-    return jwt.sign(payload, secret, signOptions);
+    const jti: string = payload.jti || generateId(15);
+    const token: string = jwt.sign({ ...payload, jti }, secret, signOptions);
+    const decoded: any = jwt.decode(token);
+    const key = `${this.options.prefix}${jti}`;
+    if (decoded.exp) {
+      this.redis.setExpire(
+        key,
+        'true',
+        'EX',
+        Math.floor(decoded.exp - Date.now() / 1000)
+      );
+    } else {
+      this.redis.set(key, 'true');
+    }
+    return token;
   }
 
   signAsync(
-    payload: string | Buffer | object,
+    payload: string | Buffer | string[],
     options?: JwtSignOptions
   ): Promise<string> {
     const signOptions = this.mergeJwtOptions(
@@ -53,7 +80,10 @@ export class JwtService {
     );
   }
 
-  verify<T extends object = any>(token: string, options?: JwtVerifyOptions): T {
+  verify<T extends string[] & { jti?: string }>(
+    token: string,
+    options?: JwtVerifyOptions
+  ): void {
     const verifyOptions = this.mergeJwtOptions({ ...options }, 'verifyOptions');
     const secret = this.getSecretKey(
       token,
@@ -62,10 +92,28 @@ export class JwtService {
       JwtSecretRequestType.VERIFY
     );
 
-    return jwt.verify(token, secret, verifyOptions) as T;
+    return jwt.verify(
+      token,
+      secret,
+      verifyOptions,
+      (err: VerifyErrors, decoded: T) => {
+        if (err) {
+          throw new TokenInvalidError(err.message);
+        }
+        if (!decoded.jti) {
+          throw new TokenInvalidError();
+        }
+        const { jti } = decoded;
+        const key = this.options.prefix + jti;
+        if (!this.redis.get(key)) {
+          throw new TokenDestroyedError();
+        }
+        return decoded;
+      }
+    );
   }
 
-  verifyAsync<T extends object = any>(
+  verifyAsync<T extends string[] & { jti?: string }>(
     token: string,
     options?: JwtVerifyOptions
   ): Promise<T> {
@@ -91,6 +139,16 @@ export class JwtService {
     return jwt.decode(token, options);
   }
 
+  revoke(jti: string, id?: string | null): boolean {
+    const key = this.options.prefix + jti;
+    return this.redis.del(key);
+  }
+
+  destroy(jti: string, id?: string | null): boolean {
+    const key = this.options.prefix + jti;
+    return this.redis.del(key);
+  }
+
   private mergeJwtOptions(
     options: JwtVerifyOptions | JwtSignOptions,
     key: 'verifyOptions' | 'signOptions'
@@ -105,7 +163,7 @@ export class JwtService {
   }
 
   private getSecretKey(
-    token: string | object | Buffer,
+    token: string | string[] | Buffer,
     options: JwtVerifyOptions | JwtSignOptions,
     key: 'publicKey' | 'privateKey',
     secretRequestType: JwtSecretRequestType
