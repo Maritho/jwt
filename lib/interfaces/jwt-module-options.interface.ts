@@ -11,13 +11,14 @@ export interface JwtModuleOptions {
   secret?: string | Buffer;
   publicKey?: string | Buffer;
   privateKey?: jwt.Secret;
+  prefix?: string;
   /**
    * @deprecated
    */
   secretOrPrivateKey?: jwt.Secret;
   secretOrKeyProvider?: (
     requestType: JwtSecretRequestType,
-    tokenOrPayload: string | object | Buffer,
+    tokenOrPayload: string | any | Buffer,
     options?: jwt.VerifyOptions | jwt.SignOptions
   ) => jwt.Secret;
   verifyOptions?: jwt.VerifyOptions;

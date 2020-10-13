@@ -31,7 +31,7 @@ JWT utilities module for [Nest](https://github.com/nestjs/nest) based on the [js
 ## Installation
 
 ```bash
-$ npm i --save @nestjs/jwt
+$ npm i --save nestjs-jwtredis
 ```
 
 ## Usage
@@ -188,10 +188,10 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 
 ## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- Author - [Chantouch Sek](https://github.com/Chantouch/jwt)
+- Website - [https://bookingkh.com](https://bookingkh.com/)
+- Twitter - [@Touch](https://twitter.com/DevidCs83)
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+Nest is [MIT licensed](LICENSE.md).

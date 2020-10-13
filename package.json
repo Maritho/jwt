@@ -1,8 +1,8 @@
 {
-  "name": "@nestjs/jwt",
-  "version": "7.1.0",
-  "description": "Nest - modern, fast, powerful node.js web framework (@jwt)",
-  "author": "Kamil Mysliwiec",
+  "name": "nestjs-jwtredis",
+  "version": "0.0.2",
+  "description": "Nest - modern, fast, powerful node.js web framework (jwt-redis)",
+  "author": "Chantouch Sek",
   "license": "MIT",
   "scripts": {
     "format": "prettier --write \"**/*.ts\"",
@@ -23,28 +23,30 @@
   "devDependencies": {
     "@commitlint/cli": "11.0.0",
     "@commitlint/config-angular": "11.0.0",
-    "jest": "26.5.3",
-    "ts-jest": "26.4.1",
-    "reflect-metadata": "0.1.13",
+    "@nestjs/common": "7.4.4",
     "@nestjs/core": "7.4.4",
     "@nestjs/testing": "7.4.4",
     "@types/jest": "26.0.14",
+    "@types/node": "7.10.9",
     "@typescript-eslint/eslint-plugin": "4.4.0",
     "@typescript-eslint/parser": "4.4.0",
     "eslint": "7.11.0",
     "eslint-config-prettier": "6.12.0",
     "eslint-plugin-import": "2.22.1",
-    "@nestjs/common": "7.4.4",
-    "@types/node": "7.10.9",
     "husky": "4.3.0",
+    "jest": "26.5.3",
     "lint-staged": "10.4.0",
     "prettier": "2.1.2",
+    "reflect-metadata": "0.1.13",
     "release-it": "14.1.0",
+    "ts-jest": "26.4.1",
     "typescript": "4.0.3"
   },
   "dependencies": {
     "@types/jsonwebtoken": "8.5.0",
-    "jsonwebtoken": "8.5.1"
+    "@types/redis": "^2.8.27",
+    "jsonwebtoken": "8.5.1",
+    "redis": "^3.0.2"
   },
   "lint-staged": {
     "*.ts": [
@@ -59,6 +61,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nestjs/jwt"
+    "url": "https://github.com/Chantouch/jwt"
   }
 }

@@ -1,9 +1,6 @@
 import { Test } from '@nestjs/testing';
 import * as jwt from 'jsonwebtoken';
-import {
-  JwtModuleOptions,
-  JwtSecretRequestType
-} from './interfaces/jwt-module-options.interface';
+import { JwtModuleOptions, JwtSecretRequestType } from './interfaces';
 import { JwtModule } from './jwt.module';
 import { JwtService } from './jwt.service';
 
